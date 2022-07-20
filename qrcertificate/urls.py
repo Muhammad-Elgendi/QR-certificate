@@ -14,11 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from .views import verify
+from django.urls import path, include
+
+# change ‘Django administration’ text
+admin.site.site_header = "QR-cert Admin"
+admin.site.site_title = "QR-cert Admin"
+admin.site.index_title = "Welcome to QR-cert Admin Portal"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('verify',verify),
-
+    path('admin-dashboard/', admin.site.urls),
+    path('certificate/', include('certifications.urls')),
 ]
