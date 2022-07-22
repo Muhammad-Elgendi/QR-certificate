@@ -2,7 +2,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/Muhammad-Elgendi/QR-certificate">
-    <img src="favicon.png" alt="Logo" width="512" height="512">
+    <img src="favicon.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">QR-certificate</h3>

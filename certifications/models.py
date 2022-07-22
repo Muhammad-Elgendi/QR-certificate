@@ -32,9 +32,10 @@ class Certificate(models.Model):
     course_en = models.CharField('Course In English', max_length=100)
     issuer_ar = models.CharField('Issuer Name In Arabic', max_length=100)
     issuer_en = models.CharField('Issuer Name In English', max_length=100)
+    issuer_url = models.CharField('Verify URL', max_length=2000)
     course_start = models.DateTimeField('Course Started Time')
     course_end = models.DateTimeField('Course Ended Time')
-    issue_date = models.DateTimeField('Certification Issued Time', blank=True, null=True)
+    issue_date = models.DateTimeField('Certification Issued Time', blank=True, null=True, auto_now_add=True)
 
     def __str__(self):
         return self.name_en+' | No. '+self.cert_no

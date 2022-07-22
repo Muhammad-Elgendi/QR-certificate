@@ -35,20 +35,18 @@ def arabify(arabic_text):
     return bidi_text
 
 
-def generate_cert_pdf(request,cert_no):
+def generate_cert_pdf(request,cert_no,as_IObytes=False):
     try:
         cert = Certificate.objects.get(cert_no=cert_no)
     except Certificate.DoesNotExist:
         raise Http404("Certificate does not exist")
-
-    url = request.GET.get('url')
 
     QRs = []
     qr = qrcode.QRCode(                  
         box_size=10,
         border=1,
     )
-    qr.add_data(url)
+    qr.add_data(cert.issuer_url)
 
     # QR in color are not compatible with all readers
     # img = qr.make_image(fill_color="white", back_color=(95, 207, 128))
@@ -82,12 +80,17 @@ def generate_cert_pdf(request,cert_no):
     # Draw things on the PDF. Here's where the PDF generation happens.
     # See the ReportLab documentation for the full list of functionality.
     p.setFont('Almarai-Bold',25,leading=None)
-    p.drawCentredString(620, 500, arabify(cert.issuer_ar))
+    if len(cert.issuer_ar.split()) > 4:
+        p.drawCentredString(620, 500, arabify(" ".join(cert.issuer_ar.split()[:4])))
+        p.drawCentredString(620, 475, arabify(" ".join(cert.issuer_ar.split()[4:])))
+    else:  
+        p.drawCentredString(620, 500, arabify(cert.issuer_ar))
+  
     p.drawCentredString(210, 500, cert.issuer_en)
 
     p.setFont('Almarai-Regular',24,leading=None)
-    p.drawCentredString(620, 450, arabify("يشهد أن"))
-    p.drawCentredString(210, 450, "Certifies that")
+    p.drawCentredString(620, 440, arabify("يشهد أن"))
+    p.drawCentredString(210, 440, "Certifies that")
 
     p.setFont('Almarai-ExtraBold',20,leading=None)
     p.drawCentredString(620, 395, arabify(cert.name_ar))
@@ -110,7 +113,7 @@ def generate_cert_pdf(request,cert_no):
     p.drawCentredString(210, 250, "and has participated actively and postively")
     p.drawCentredString(620, 250, arabify('وكان مشاركاً فيها بايجابية وفاعلية'))
 
-    p.drawImage('static/generated/'+image_file,390, 50, width=50, height=50)
+    p.drawImage('static/generated/'+image_file,50, 50, width=50, height=50)
     p.setFont('Helvetica',10,leading=None)
     p.drawString(50, 40, "Certification no: "+cert.cert_no)
     # Close the PDF object cleanly, and we're done.
@@ -120,4 +123,8 @@ def generate_cert_pdf(request,cert_no):
     # FileResponse sets the Content-Disposition header so that browsers
     # present the option to save the file.
     buffer.seek(0)
+
+    if as_IObytes:
+        return buffer
+        
     return FileResponse(buffer, as_attachment=True, filename='Certification_'+cert.cert_no+'.pdf')
