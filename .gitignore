@@ -1,2 +1,2 @@
-static/generated/
-**/__pycache__
+static/generated/*
+__pycache__/

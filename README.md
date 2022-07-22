@@ -83,9 +83,9 @@ Install docker engine and docker compose.
    ```sh
    git clone https://github.com/Muhammad-Elgendi/QR-certificate.git
    ```
-2. Go to CIgen directory
+2. Go to qrcertificate directory
    ```sh
-   cd CIgen/
+   cd qrcertificate
    ```
 3. Create your own .env files by copying .env.example
    ```sh
@@ -94,7 +94,7 @@ Install docker engine and docker compose.
    ```
 4. Go to docker directory
    ```sh
-   cd CIgen/docker
+   cd qrcertificate/docker
    ```
 5. Create your own .env file for docker compose by copying .env.example
    ```sh
@@ -121,10 +121,10 @@ Install docker engine and docker compose.
 <!-- Use Cases -->
 ## Use Cases
 
-CIgen could be used for different use cases, here are some examples:
+QR-certificate could be used for different use cases, here are some examples:
 
-1. Quiz maker software
-2. Attendance management software
+1. Verification of generated certificates
+2. Export certificates in PDF
 
 Additional screenshots, screencasts, and more resources will be soon.
 

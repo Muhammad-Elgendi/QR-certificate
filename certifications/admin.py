@@ -15,9 +15,10 @@ import io
 
 class UploadForm(forms.Form):
     file_to_upload = forms.FileField()
+    issuer_url = forms.CharField(max_length=2000)
 
 class CertificateAdmin(admin.ModelAdmin):
-    list_display = ['name_en', 'cert_no', 'course_en', 'course_end','get_download_link']
+    list_display = ['name_en', 'cert_no', 'course_en', 'course_end','get_download_link','get_verify_link']
     list_display_links = ['name_en']
 
     def get_urls(self):
@@ -36,6 +37,13 @@ class CertificateAdmin(admin.ModelAdmin):
     get_download_link.allow_tags = True
     get_download_link.admin_order_field  = 'certificate'  #Allows column order sorting
     get_download_link.short_description = 'Download'  #Renames column head
+
+    def get_verify_link(self, obj):
+        return mark_safe('<a href="%s">Verify Certificate</a>' % reverse('certifications:verify', kwargs={'cert_no':obj.cert_no }))
+    
+    get_verify_link.allow_tags = True
+    get_verify_link.admin_order_field  = 'certificate'  #Allows column order sorting
+    get_verify_link.short_description = 'Verify'  #Renames column head
 
     def zipFiles(self,files):
         outfile = io.BytesIO()  # io.BytesIO() for python 3 # StringIO() for python2
@@ -102,6 +110,11 @@ class CertificateAdmin(admin.ModelAdmin):
                     for col in cols.keys():
                         if pd.notnull(row[col]):
                             new_cert[cols[col]] = row[col]
+
+                    # add issuer url
+                    new_cert['issuer_url'] = request.POST["issuer_url"]
+
+                    # create new certification object
                     Certificate.objects.update_or_create(**new_cert)
                         
             except Exception as e:
