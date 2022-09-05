@@ -1,2 +1,10 @@
 static/generated/*
 __pycache__/
+.env
+.env.prod
+.env.dev
+docker/.env.prod
+docker/.env.example
+docker/.env.dev
+public/*
+media/*

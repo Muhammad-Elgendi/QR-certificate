@@ -8,7 +8,7 @@
   <h3 align="center">QR-certificate</h3>
 
   <p align="center">
-    CIgen is an open-source quizzing software to create and deliver online quizzes, exams, and tests.
+    Simple django web application to manage certificates and their verifications with QR codes.
     <br />
     <a href="https://github.com/Muhammad-Elgendi/QR-certificate"><strong>Explore the docs »</strong></a>
     <br />
@@ -113,7 +113,7 @@ Install docker engine and docker compose.
    ```
 9. Fill out your credentials
 
-10. Open a new browser tab and Visit localhost:8000
+10. Open a new browser tab and Visit localhost
 
 
 

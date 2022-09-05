@@ -1,5 +1,5 @@
 from django.contrib import admin, messages
-from .models import Certificate
+from .models import Certificate, Issuer
 from .views import generate_cert_pdf
 from django import forms
 from django.urls import path, reverse
@@ -14,8 +14,9 @@ import io
 
 
 class UploadForm(forms.Form):
-    file_to_upload = forms.FileField()
-    issuer_url = forms.CharField(max_length=2000)
+    certs_to_upload = forms.FileField()
+    issuer = forms.ModelChoiceField(queryset=Issuer.objects.all()) # Or whatever query you'd like
+    images_to_upload = forms.FileField()
 
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ['name_en', 'cert_no', 'course_en', 'course_end','get_download_link','get_verify_link']
@@ -76,13 +77,35 @@ class CertificateAdmin(admin.ModelAdmin):
             raise Http404("Certificate does not exist")
         return generate_cert_pdf(request,cert.cert_no)
 
+    def get_filenames(self,path_to_zip):
+        """ return list of filenames inside of the zip folder """
+        with zipfile.ZipFile(path_to_zip, 'r') as zip:
+            return zip.namelist()
+
+    def find_img(self,search,list_of_names):
+        """ return full image name based of national ID """
+        for image in list_of_names:
+            if str(search) == image.split('.')[0]:
+                # print('found img')
+                return image
+        return None
+
     def upload_certs(self,request):
         df = None
         if request.method == "POST":
-            certs_file = request.FILES["file_to_upload"]
+            certs_file = request.FILES["certs_to_upload"]
+            images_file = request.FILES["images_to_upload"]
+
+            # decompress images file
+            with zipfile.ZipFile(images_file, 'r') as zip_ref:
+                zip_ref.extractall('media/images/')
+
+            # get images names from compressed file
+            img_names = self.get_filenames(images_file)
+
             cols = {
                 'الاسم باللغة العربية':'name_ar',
-                'الاسم بالانجليزي  \" للشهادة \"':'name_en',
+                'الاسم بالانجليزي للشهادة':'name_en',
                 'الرقم القومي من اليسار':'national_id',
                 'التخصص':'specialization',
                 'رقم التليفون':'phone_no',
@@ -91,18 +114,18 @@ class CertificateAdmin(admin.ModelAdmin):
                 'رقم الشهادة':'cert_no',
                 'اسم الشهادة باللغة العربية':'course_ar',
                 'اسم الشهادة باللغة الاجنبية':'course_en',
-                'اسم المركز باللغة العربية':'issuer_ar',
-                'اسم المركز باللغة الانجليزية':'issuer_en',
+                'نوع الكورس باللغة العربية':'course_type_ar',
+                'نوع الكورس باللغة الانجليزية':'course_type_en',
                 'من':'course_start',
                 'إلى':'course_end',
             }
 
             try:            
 
-                df = pd.read_excel(certs_file,converters= {'من': pd.to_datetime, 'إلى': pd.to_datetime})           
+                df = pd.read_excel(certs_file,converters= {'من': pd.to_datetime, 'إلى': pd.to_datetime,'تاريخ الايصال': pd.to_datetime})           
                 df['من'].apply(lambda x: x.replace(tzinfo=None))
                 df['إلى'].apply(lambda x: x.replace(tzinfo=None))
-
+                df['تاريخ الايصال'].apply(lambda x: x.replace(tzinfo=None))
                 # create certifications from the uploaded file
                 
                 for index, row in df.iterrows():
@@ -112,7 +135,12 @@ class CertificateAdmin(admin.ModelAdmin):
                             new_cert[cols[col]] = row[col]
 
                     # add issuer url
-                    new_cert['issuer_url'] = request.POST["issuer_url"]
+                    new_cert['issuer'] = Issuer.objects.get(id=request.POST["issuer"])
+
+                    # add image if exist
+                    img = self.find_img(new_cert['national_id'],img_names)
+                    if img:
+                        new_cert['image'] = 'media/images/'+img
 
                     # create new certification object
                     Certificate.objects.update_or_create(**new_cert)
@@ -128,7 +156,7 @@ class CertificateAdmin(admin.ModelAdmin):
 
         if isinstance(df, pd.DataFrame):
             data.update( { "df": df.to_html() })
-            messages.success(request, 'Your File Has Been Uploaded Successfully.')
+            messages.success(request, 'Certifications Have Been Uploaded Successfully.')
 
 
             
@@ -140,3 +168,4 @@ class CertificateAdmin(admin.ModelAdmin):
 # Register your models here.
 # admin.site.register(Certificate)
 admin.site.register(Certificate, CertificateAdmin)
+admin.site.register(Issuer)

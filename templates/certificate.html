@@ -6,7 +6,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Course Completion Certificate</title>
+    <title>شهادة إجتياز دورة</title>
 
     <style>
         * {
@@ -44,7 +44,8 @@
         }
 
         .cert-container {
-            margin: 65px 0 10px 0;
+            /* margin: 65px 0 10px 0; */
+            margin: 65px 0 0 0;
             width: 100%;
             display: flex;
             justify-content: center;
@@ -113,31 +114,31 @@
 
 <body>
 
-    <div class="toolbar no-print">
+    <!-- <div class="toolbar no-print">
         <button class="btn btn-info" onclick="window.print()">
-            Print Certificate
+            طباعة الشهادة
         </button>
-        <button class="btn btn-info" id="downloadPDF">Download PDF</button>
-    </div>
+        <button class="btn btn-info" id="downloadPDF">تحميل الشهادة</button>
+    </div> -->
     <div class="cert-container print-m-0">
         <div id="content2" class="cert">
-            <img src="https://github.com/Muhammad-Elgendi/QR-certificate/raw/main/certification.jpg" class="cert-bg" alt="" />
+            <!-- <img src="https://github.com/Muhammad-Elgendi/QR-certificate/raw/main/certification.jpg" class="cert-bg" alt="" /> -->
             <div class="cert-content">
-                <h1 class="other-font">Certificate of Completion</h1>
-                <h3 class="other-font">{{ cert.issuer_en }} certify that</h3>
+                <h1 class="other-font">شهادة إجتياز</h1>
+                <h3 class="other-font">{{ cert.issuer.name_ar }} يشهد أن</h3>
 
-                <span style="font-size: 30px;">{{ cert.name_en }}</span>
+                <span style="font-size: 30px;">{{ cert.name_ar }}</span>
                 <br /><br /><br /><br />
-                <span class="other-font"><i><b>has completed the</b></i></span>
+                <span class="other-font"><i><b>قد إجتاز {{ cert.course_type_ar }} </b></i></span>
                 <br />
-                <span style="font-size: 40px;"><b>{{ cert.course_en }}</b></span>
+                <span style="font-size: 40px;"><b>{{ cert.course_ar }}</b></span>
                 <br />
-                <small class="other-font">and has participated actively and postively</small>
+                <small class="other-font">وقد شارك بإيجابية و نشاط</small>
                 <br /><br /><br /><br />
                 
                 <div class="bottom-txt">
-                    <span>Certification no: {{cert.cert_no}}</span>
-                    <span>Completed on: {{ cert.course_end|date:"M d, Y" }}</span>
+                    <span>رقم الشهادة <b>{{cert.cert_no}}</b></span>
+                    <span><b>{{ cert.course_end|date:"Y / m / d" }}</b> تاريخ إجتياز {{ cert.course_type_ar }}</span>
                 </div>
             </div>
         </div>
