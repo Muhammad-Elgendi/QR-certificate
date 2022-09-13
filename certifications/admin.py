@@ -16,7 +16,7 @@ import io
 class UploadForm(forms.Form):
     certs_to_upload = forms.FileField()
     issuer = forms.ModelChoiceField(queryset=Issuer.objects.all()) # Or whatever query you'd like
-    images_to_upload = forms.FileField()
+    images_to_upload = forms.FileField(required=False)
 
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ['name_en', 'cert_no', 'course_en', 'course_end','get_download_link','get_verify_link']
@@ -94,14 +94,15 @@ class CertificateAdmin(admin.ModelAdmin):
         df = None
         if request.method == "POST":
             certs_file = request.FILES["certs_to_upload"]
-            images_file = request.FILES["images_to_upload"]
+            if 'images_to_upload' in request.FILES:
+                images_file = request.FILES["images_to_upload"]
 
-            # decompress images file
-            with zipfile.ZipFile(images_file, 'r') as zip_ref:
-                zip_ref.extractall('media/images/')
+                # decompress images file
+                with zipfile.ZipFile(images_file, 'r') as zip_ref:
+                    zip_ref.extractall('media/images/')
 
-            # get images names from compressed file
-            img_names = self.get_filenames(images_file)
+                # get images names from compressed file
+                img_names = self.get_filenames(images_file)
 
             cols = {
                 'الاسم باللغة العربية':'name_ar',
@@ -137,10 +138,11 @@ class CertificateAdmin(admin.ModelAdmin):
                     # add issuer url
                     new_cert['issuer'] = Issuer.objects.get(id=request.POST["issuer"])
 
-                    # add image if exist
-                    img = self.find_img(new_cert['national_id'],img_names)
-                    if img:
-                        new_cert['image'] = 'media/images/'+img
+                    if 'images_to_upload' in request.FILES:
+                        # add image if exist
+                        img = self.find_img(new_cert['national_id'],img_names)
+                        if img:
+                            new_cert['image'] = 'media/images/'+img
 
                     # create new certification object
                     Certificate.objects.update_or_create(**new_cert)
