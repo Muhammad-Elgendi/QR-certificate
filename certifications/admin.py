@@ -10,6 +10,8 @@ from django.http import FileResponse, HttpResponse
 import pandas as pd
 import zipfile
 import io
+import hashlib
+import time
 
 
 
@@ -132,6 +134,14 @@ class CertificateAdmin(admin.ModelAdmin):
                 for index, row in df.iterrows():
                     new_cert = {}
                     for col in cols.keys():
+                        if col == 'رقم الشهادة' and not pd.notnull(row[col]):
+                            # handle cert_no automatic creation
+                            new_cert_no = 'MUFIC-'
+                            hash = hashlib.sha1()
+                            hash.update(str(time.time()).encode("utf-8"))
+                            new_cert_no += hash.hexdigest()[:10]
+                            new_cert[cols[col]] = new_cert_no
+                            
                         if pd.notnull(row[col]):
                             new_cert[cols[col]] = row[col]
 
